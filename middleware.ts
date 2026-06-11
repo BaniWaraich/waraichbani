@@ -38,8 +38,26 @@ function clientIp(req: NextRequest): string {
   return req.headers.get("x-real-ip") ?? "unknown";
 }
 
+// The single canonical host. next-auth v4 (App Router) derives the OAuth
+// redirect_uri from the *request* host, so a visit via the bare *.vercel.app
+// alias produces a callback URL that isn't registered in Google → a
+// redirect_uri_mismatch. Funnel that alias to the custom domain before any auth
+// flow can start so the callback is always the registered one.
+const CANONICAL_HOST = "waraichbani.com";
+const REDIRECT_HOSTS = new Set(["waraichbani.vercel.app"]);
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // --- 0. Canonical-host redirect -----------------------------------------
+  const host = req.headers.get("host") ?? "";
+  if (REDIRECT_HOSTS.has(host)) {
+    const url = req.nextUrl.clone();
+    url.protocol = "https:";
+    url.host = CANONICAL_HOST;
+    url.port = "";
+    return NextResponse.redirect(url, 308);
+  }
 
   // --- 1. Rate-limit the validate-token endpoint --------------------------
   if (pathname === "/api/validate-token") {
@@ -99,5 +117,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/reports/:slug*", "/api/validate-token"],
+  matcher: ["/reports/:slug*", "/api/validate-token", "/api/auth/:path*"],
 };
