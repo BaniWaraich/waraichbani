@@ -96,6 +96,15 @@ export async function archiveReport(id: string): Promise<void> {
   await sql`UPDATE reports SET archived = TRUE, updated_at = NOW() WHERE id = ${id}`;
 }
 
+/**
+ * Permanently deletes a report. The access_tokens, view_events, and
+ * activity_events tables all reference reports(id) ON DELETE CASCADE, so a single
+ * DELETE removes the report and every dependent row in one statement.
+ */
+export async function deleteReport(id: string): Promise<void> {
+  await sql`DELETE FROM reports WHERE id = ${id}`;
+}
+
 // ---------------------------------------------------------------------------
 // Access tokens
 // ---------------------------------------------------------------------------

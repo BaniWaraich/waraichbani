@@ -7,12 +7,11 @@ import {
   getTokensForReport,
   getActivityForReport,
   getRecentViewsForReport,
-  archiveReport,
-  revokeAllTokensForReport,
+  deleteReport,
   slugExists,
   logActivity,
 } from "@/lib/db";
-import { uploadReportHtml } from "@/lib/blob";
+import { uploadReportHtml, deleteBlob } from "@/lib/blob";
 import { validateSlug } from "@/lib/tokens";
 
 export const runtime = "nodejs";
@@ -99,7 +98,9 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   return NextResponse.json({ ok: true, updated: updates });
 }
 
-// DELETE — soft delete: revoke all tokens + archive the report
+// DELETE — permanently remove the report. The ON DELETE CASCADE foreign keys
+// remove its access tokens, view events, and activity rows, so every dashboard
+// stat (total / active access / viewed / revoked) recomputes cleanly.
 export async function DELETE(_req: NextRequest, { params }: Params) {
   const denied = await requireAdmin();
   if (denied) return denied;
@@ -107,9 +108,14 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   const report = await getReportById(params.id);
   if (!report) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  await revokeAllTokensForReport(report.id);
-  await archiveReport(report.id);
-  await logActivity(report.id, "archived", "Report archived; all tokens revoked");
+  // Best-effort blob cleanup — don't fail the delete if the file is already gone.
+  try {
+    await deleteBlob(report.file_url);
+  } catch {
+    // ignore: orphaned blob is harmless and the DB row is the source of truth
+  }
+
+  await deleteReport(report.id);
 
   revalidatePath("/reports");
   return NextResponse.json({ ok: true });

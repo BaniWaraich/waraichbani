@@ -42,11 +42,11 @@ export default function ReportsTable({
       <table className="w-full text-left text-sm">
         <thead className="border-b border-neutral-200 bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500">
           <tr>
-            <th className="px-5 py-3 font-medium">Title</th>
-            <th className="px-5 py-3 font-medium">Recipient(s)</th>
-            <th className="px-5 py-3 font-medium">Sent</th>
-            <th className="px-5 py-3 font-medium text-right">Views</th>
-            <th className="px-5 py-3 font-medium">Status</th>
+            <th className="px-4 py-3 font-medium sm:px-5">Title</th>
+            <th className="hidden px-4 py-3 font-medium sm:px-5 md:table-cell">Recipient(s)</th>
+            <th className="hidden px-4 py-3 font-medium sm:table-cell sm:px-5">Sent</th>
+            <th className="px-4 py-3 font-medium text-right sm:px-5">Views</th>
+            <th className="px-4 py-3 font-medium sm:px-5">Status</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-neutral-100">
@@ -60,11 +60,11 @@ export default function ReportsTable({
                   selectedId === r.id ? "bg-neutral-50" : ""
                 }`}
               >
-                <td className="px-5 py-4">
+                <td className="px-4 py-4 sm:px-5">
                   <div className="font-medium text-ink">{r.title}</div>
                   <div className="text-xs text-neutral-400">/reports/{r.slug}</div>
                 </td>
-                <td className="px-5 py-4 text-neutral-600">
+                <td className="hidden px-4 py-4 text-neutral-600 sm:px-5 md:table-cell">
                   {r.recipient_count === 0 ? (
                     <span className="text-neutral-400">—</span>
                   ) : r.recipient_count === 1 ? (
@@ -73,11 +73,13 @@ export default function ReportsTable({
                     `${r.recipient_count} recipients`
                   )}
                 </td>
-                <td className="px-5 py-4 text-neutral-600">{formatDate(r.created_at)}</td>
-                <td className="px-5 py-4 text-right tabular-nums text-neutral-600">
+                <td className="hidden px-4 py-4 text-neutral-600 sm:table-cell sm:px-5">
+                  {formatDate(r.created_at)}
+                </td>
+                <td className="px-4 py-4 text-right tabular-nums text-neutral-600 sm:px-5">
                   {r.view_count}
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-4 py-4 sm:px-5">
                   <span
                     className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${status.className}`}
                   >

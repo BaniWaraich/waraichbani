@@ -28,3 +28,17 @@ body {
     @apply w-full rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm outline-none transition focus:border-neutral-400;
   }
 }
+
+/*
+ * Mobile Safari/Chrome auto-zoom the viewport when focusing a form control whose
+ * font-size is below 16px (our inputs use text-sm = 14px). Pin form controls to
+ * 16px on small screens so focusing a field keeps the page stable, without
+ * disabling pinch-to-zoom. Unlayered so it overrides Tailwind's utility layer.
+ */
+@media (max-width: 640px) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}

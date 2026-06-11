@@ -20,12 +20,12 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen bg-paper">
       <header className="border-b border-neutral-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
+          <div className="flex items-center gap-4 sm:gap-6">
             <Link href="/reports" className="text-sm font-semibold tracking-tight">
               Reports
             </Link>
-            <nav className="flex items-center gap-4 text-sm text-neutral-500">
+            <nav className="flex items-center gap-3 text-sm text-neutral-500 sm:gap-4">
               <Link href="/reports" className="hover:text-ink">
                 Dashboard
               </Link>
@@ -37,7 +37,7 @@ export default async function AdminLayout({
           <SignOutButton />
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">{children}</main>
     </div>
   );
 }

@@ -112,7 +112,11 @@ export default function DetailPanel({
   };
 
   const deleteReport = async () => {
-    if (!confirm("Archive this report and revoke all access? This cannot be undone from the UI.")) {
+    if (
+      !confirm(
+        `Permanently delete "${detail?.report.title ?? "this report"}"? This removes the report, all recipient access, and its view history. This cannot be undone.`
+      )
+    ) {
       return;
     }
     setBusy(true);
@@ -146,7 +150,7 @@ export default function DetailPanel({
     <div className="fixed inset-0 z-40 flex justify-end">
       <div className="absolute inset-0 bg-black/20" onClick={onClose} />
       <aside className="relative z-50 flex h-full w-full max-w-md flex-col overflow-y-auto border-l border-neutral-200 bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-neutral-200 px-5 py-4 sm:px-6">
           <h2 className="text-sm font-semibold">Report details</h2>
           <button onClick={onClose} className="text-neutral-400 hover:text-ink" aria-label="Close">
             ✕
@@ -156,7 +160,7 @@ export default function DetailPanel({
         {loading || !detail ? (
           <div className="p-6 text-sm text-neutral-500">Loading…</div>
         ) : (
-          <div className="space-y-8 p-6">
+          <div className="space-y-8 p-5 sm:p-6">
             <div>
               <h3 className="text-lg font-semibold tracking-tight">{detail.report.title}</h3>
               <div className="mt-3 flex items-center gap-2">
@@ -279,9 +283,9 @@ export default function DetailPanel({
               <button
                 onClick={deleteReport}
                 disabled={busy}
-                className="text-sm text-red-600 hover:underline disabled:opacity-50"
+                className="w-full rounded-lg border border-red-200 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50 sm:w-auto"
               >
-                Archive report &amp; revoke all access
+                Delete report
               </button>
             </div>
           </div>

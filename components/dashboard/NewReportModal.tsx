@@ -60,7 +60,7 @@ export default function NewReportModal({
       <div className="absolute inset-0 bg-black/30" onClick={onClose} />
       <form
         onSubmit={submit}
-        className="relative z-10 w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+        className="relative z-10 w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-5 shadow-xl sm:p-6"
         style={{ maxHeight: "90vh" }}
       >
         <div className="mb-4 flex items-center justify-between">
@@ -110,7 +110,7 @@ export default function NewReportModal({
             />
           </Field>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Field label="Recipient name">
               <input
                 required
