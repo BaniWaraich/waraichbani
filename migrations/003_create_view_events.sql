@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS view_events (
 
 CREATE INDEX IF NOT EXISTS idx_view_events_token_id ON view_events (access_token_id);
 
--- Used to enforce "one view event per token per day".
+-- Supports "one view event per token per day" lookups.
+-- viewed_at::date is not IMMUTABLE (depends on session TimeZone), so it cannot be
+-- used in an index expression. Pin the day to UTC, which is immutable.
 CREATE INDEX IF NOT EXISTS idx_view_events_token_day
-  ON view_events (access_token_id, (viewed_at::date));
+  ON view_events (access_token_id, ((viewed_at AT TIME ZONE 'UTC')::date));

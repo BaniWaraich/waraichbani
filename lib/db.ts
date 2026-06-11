@@ -165,7 +165,7 @@ export async function recordViewOncePerDay(
     WHERE NOT EXISTS (
       SELECT 1 FROM view_events
       WHERE access_token_id = ${accessTokenId}
-        AND viewed_at::date = NOW()::date
+        AND (viewed_at AT TIME ZONE 'UTC')::date = (NOW() AT TIME ZONE 'UTC')::date
     )
     RETURNING *
   `;
@@ -179,7 +179,7 @@ export async function getTodaysViewEvent(
   const { rows } = await sql<ViewEvent>`
     SELECT * FROM view_events
     WHERE access_token_id = ${accessTokenId}
-      AND viewed_at::date = NOW()::date
+      AND (viewed_at AT TIME ZONE 'UTC')::date = (NOW() AT TIME ZONE 'UTC')::date
     ORDER BY viewed_at DESC
     LIMIT 1
   `;
