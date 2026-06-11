@@ -7,13 +7,24 @@ import GoogleProvider from "next-auth/providers/google";
  * Everyone else is rejected at the signIn callback, so no session is ever issued
  * for an unauthorized account. Sessions are JWT-backed (no DB session table).
  */
-const allowedEmail = (process.env.NEXTAUTH_ALLOWED_EMAIL ?? "").toLowerCase();
+/**
+ * Read a required env var, failing loudly if it is missing or empty.
+ * This turns a misconfigured deploy (e.g. an empty GOOGLE_CLIENT_ID) into an
+ * immediate, named error instead of a cryptic Google "redirect_uri_mismatch".
+ */
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`Missing required environment variable: ${name}`);
+  return value;
+}
+
+const allowedEmail = requireEnv("NEXTAUTH_ALLOWED_EMAIL").toLowerCase();
 
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      clientId: requireEnv("GOOGLE_CLIENT_ID"),
+      clientSecret: requireEnv("GOOGLE_CLIENT_SECRET"),
     }),
   ],
   session: { strategy: "jwt" },
