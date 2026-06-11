@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getDashboardStats, listReportsWithStats } from "@/lib/db";
 import StatsRow from "@/components/dashboard/StatsRow";
 import DashboardClient from "@/components/dashboard/DashboardClient";
@@ -24,7 +25,9 @@ export default async function DashboardPage() {
 
       <StatsRow stats={stats} />
 
-      <DashboardClient reports={reports} />
+      <Suspense fallback={null}>
+        <DashboardClient reports={reports} />
+      </Suspense>
     </div>
   );
 }

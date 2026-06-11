@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { ReportRow } from "@/lib/db";
 import ReportsTable from "./ReportsTable";
 import DetailPanel from "./DetailPanel";
@@ -9,9 +9,16 @@ import NewReportModal from "./NewReportModal";
 
 export default function DashboardClient({ reports }: { reports: ReportRow[] }) {
   const router = useRouter();
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const searchParams = useSearchParams();
   const [modalOpen, setModalOpen] = useState(false);
   const [query, setQuery] = useState("");
+
+  const selectedId = searchParams.get("report");
+
+  const selectReport = (id: string) =>
+    router.push(`/reports?report=${encodeURIComponent(id)}`);
+
+  const closePanel = () => router.push("/reports");
 
   const refresh = () => router.refresh();
 
@@ -46,13 +53,13 @@ export default function DashboardClient({ reports }: { reports: ReportRow[] }) {
       <ReportsTable
         reports={filtered}
         selectedId={selectedId}
-        onSelect={(id) => setSelectedId(id)}
+        onSelect={selectReport}
       />
 
       {selectedId && (
         <DetailPanel
           reportId={selectedId}
-          onClose={() => setSelectedId(null)}
+          onClose={closePanel}
           onChanged={refresh}
         />
       )}

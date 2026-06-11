@@ -89,7 +89,7 @@ export async function middleware(req: NextRequest) {
     redirect.cookies.set(`report_token_${slug}`, queryToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
       path: `/reports/${slug}`,
       maxAge: COOKIE_MAX_AGE,
     });
