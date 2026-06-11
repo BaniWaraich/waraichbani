@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { validateAccess, cookieNameForSlug } from "@/lib/access";
 import { fetchReportHtml } from "@/lib/blob";
-import { recordViewOncePerDay } from "@/lib/db";
+import { recordView, isFirstViewOfDay } from "@/lib/db";
 import { sendNotifyEmail } from "@/lib/emails/notify";
 import ReportFrame from "@/components/viewer/ReportFrame";
 import SessionPinger from "@/components/viewer/SessionPinger";
@@ -52,18 +52,17 @@ export default async function ReportViewerPage({
     );
   }
 
-  // Record a view (once per token per day) and notify Bani if enabled.
+  // Record a view on every page load. Notify Bani only on the first view of the
+  // day so the audit trail stays complete without spamming the inbox on refresh.
   try {
-    const newView = await recordViewOncePerDay(token.id);
-    if (newView) {
-      if (token.notify_on_view) {
-        await sendNotifyEmail({
-          recipientName: token.recipient_name,
-          recipientEmail: token.recipient_email,
-          reportTitle: report.title,
-          viewedAt: new Date(),
-        }).catch((e) => console.error("notify email failed:", e));
-      }
+    const view = await recordView(token.id);
+    if (token.notify_on_view && (await isFirstViewOfDay(token.id, view.id))) {
+      await sendNotifyEmail({
+        recipientName: token.recipient_name,
+        recipientEmail: token.recipient_email,
+        reportTitle: report.title,
+        viewedAt: new Date(),
+      }).catch((e) => console.error("notify email failed:", e));
     }
   } catch (e) {
     console.error("view tracking failed:", e);

@@ -162,23 +162,36 @@ export async function revokeAllTokensForReport(reportId: string): Promise<void> 
 // ---------------------------------------------------------------------------
 
 /**
- * Records a view, but only once per token per calendar day. Returns the row if
- * a new event was inserted, or null if one already existed for today.
+ * Records a view on every page load — one row per open/refresh. Returns the
+ * inserted row so the caller can attach session duration and decide whether to
+ * notify (see {@link isFirstViewOfDay}).
  */
-export async function recordViewOncePerDay(
-  accessTokenId: string
-): Promise<ViewEvent | null> {
+export async function recordView(accessTokenId: string): Promise<ViewEvent> {
   const { rows } = await sql<ViewEvent>`
     INSERT INTO view_events (access_token_id)
-    SELECT ${accessTokenId}
-    WHERE NOT EXISTS (
-      SELECT 1 FROM view_events
-      WHERE access_token_id = ${accessTokenId}
-        AND (viewed_at AT TIME ZONE 'UTC')::date = (NOW() AT TIME ZONE 'UTC')::date
-    )
+    VALUES (${accessTokenId})
     RETURNING *
   `;
-  return rows[0] ?? null;
+  return rows[0];
+}
+
+/**
+ * True when the given view event is the first one for its token today (UTC).
+ * Used to throttle "notify on view" emails to once per day even though every
+ * page load is recorded in the audit trail.
+ */
+export async function isFirstViewOfDay(
+  accessTokenId: string,
+  viewEventId: string
+): Promise<boolean> {
+  const { rows } = await sql`
+    SELECT 1 FROM view_events
+    WHERE access_token_id = ${accessTokenId}
+      AND id <> ${viewEventId}
+      AND (viewed_at AT TIME ZONE 'UTC')::date = (NOW() AT TIME ZONE 'UTC')::date
+    LIMIT 1
+  `;
+  return rows.length === 0;
 }
 
 /** Finds today's view event for a token (used by session-ping). */
